@@ -1,0 +1,6 @@
+# /etc/rancher/rke2/config.yaml auf rke2-w1 (172.16.0.161)
+# TOKEN-HIER-EINSETZEN ersetzt du beim Kopieren (Kapitel 2).
+server: https://172.16.0.160:9345
+node-name: rke2-w1
+node-ip: 172.16.0.161
+token: TOKEN-HIER-EINSETZEN

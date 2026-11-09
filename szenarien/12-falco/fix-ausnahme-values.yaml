@@ -1,0 +1,16 @@
+# Kapitel 12, Szenario 3 (Fix): gezielte Ausnahme für den Aufräum-Job.
+# Zusätzlich zur Werte-Datei des Clusters angeben, zum Beispiel:
+#   helm upgrade falco falcosecurity/falco -n falco --version 9.2.2 \
+#     -f werkzeuge/falco-values-rke2.yaml \
+#     -f szenarien/12-falco/fix-ausnahme-values.yaml
+customRules:
+  dbg-ausnahmen.yaml: |-
+    - rule: Contact K8S API Server From Container
+      exceptions:
+        - name: dbg12_aufraeumer
+          fields: [k8s.ns.name, container.image.repository, proc.name]
+          comps: [=, =, =]
+          values:
+            - [dbg-12, registry.k8s.io/kubectl, kubectl]
+      override:
+        exceptions: append

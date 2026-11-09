@@ -1,0 +1,51 @@
+# Kapitel 15, Szenario ConfigMap ohne Rollout: Der Pod liest GRUSS beim
+# Start aus der ConfigMap. Eine spätere Änderung der ConfigMap erreicht
+# den laufenden Prozess nicht.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-15
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: begruessung
+  namespace: dbg-15
+data:
+  GRUSS: "Hallo v1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gruss
+  namespace: dbg-15
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gruss
+  template:
+    metadata:
+      labels:
+        app: gruss
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gruss
+          image: busybox:1.37
+          command: ["sh", "-c", "while true; do echo \"$GRUSS\"; sleep 10; done"]
+          envFrom:
+            - configMapRef:
+                name: begruessung
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

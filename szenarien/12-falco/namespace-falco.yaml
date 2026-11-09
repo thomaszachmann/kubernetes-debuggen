@@ -1,0 +1,10 @@
+# Kapitel 12 (Fix für Talos): Namespace falco mit PSA privileged.
+# Falco braucht einen privilegierten Container und hostPath-Volumes,
+# beides verbietet die Talos-Vorgabe baseline.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest

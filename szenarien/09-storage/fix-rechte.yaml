@@ -1,0 +1,37 @@
+# Kapitel 9, Szenario 4: Der Init-Container übergibt das Verzeichnis an UID 1000.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notizen
+  namespace: dbg-09
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notizen
+  template:
+    metadata:
+      labels:
+        app: notizen
+    spec:
+      initContainers:
+        - name: vorbereiten
+          image: busybox:1.37
+          command: ["sh", "-c", "mkdir -p /data/notizen && chown -R 1000:1000 /data/notizen"]
+          volumeMounts:
+            - name: daten
+              mountPath: /data
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "date >> /data/notizen/log.txt && sleep infinity"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - name: daten
+              mountPath: /data
+      volumes:
+        - name: daten
+          persistentVolumeClaim:
+            claimName: notizen

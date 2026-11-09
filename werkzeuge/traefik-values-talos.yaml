@@ -1,0 +1,33 @@
+# Traefik für den Talos-Cluster (Chart traefik/traefik 42.3.1, Traefik v3.7.17).
+# Ziel: dasselbe Verhalten wie das mitgelieferte rke2-traefik auf RKE2:
+# DaemonSet, hostPort 80/443 auf jedem Knoten, IngressClass "traefik".
+# Der Namespace braucht PSA "privileged", weil baseline keine hostPorts erlaubt.
+deployment:
+  kind: DaemonSet
+
+ingressClass:
+  enabled: true
+  isDefaultClass: true
+  name: traefik
+
+ports:
+  web:
+    hostPort: 80
+  websecure:
+    hostPort: 443
+
+service:
+  spec:
+    type: ClusterIP
+
+# Dashboard nur über das interne Entrypoint "traefik" (Port 8080),
+# erreichbar per kubectl port-forward, nicht von außen.
+ingressRoute:
+  dashboard:
+    enabled: true
+
+accessLog:
+  enabled: true
+
+log:
+  level: INFO

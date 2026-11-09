@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-05
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: start-skript
+  namespace: dbg-05
+data:
+  start.sh: |
+    echo "Starte Dienst"
+    exec sleep infinity
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skript
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skript
+  template:
+    metadata:
+      labels:
+        app: skript
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["/scripts/start.sh"]
+          volumeMounts:
+            - name: skript
+              mountPath: /scripts
+      volumes:
+        - name: skript
+          configMap:
+            name: start-skript
+            defaultMode: 0755

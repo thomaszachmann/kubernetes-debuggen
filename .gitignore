@@ -1,0 +1,7 @@
+labor/talos/talosconfig
+labor/talos/secrets.yaml
+labor/talos/controlplane.yaml
+labor/talos/worker.yaml
+*.pdf
+!dist/*.pdf
+.DS_Store

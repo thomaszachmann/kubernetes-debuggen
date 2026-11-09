@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tippfehler
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tippfehler
+  template:
+    metadata:
+      labels:
+        app: tippfehler
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.29-alpine
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unerreichbar
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unerreichbar
+  template:
+    metadata:
+      labels:
+        app: unerreichbar
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.29-alpine

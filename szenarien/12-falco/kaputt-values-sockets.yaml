@@ -1,0 +1,10 @@
+# Kapitel 12, Szenario 4: "vereinheitlichte" Werte für beide Cluster.
+# Auf RKE2 zusätzlich zu werkzeuge/falco-values-rke2.yaml angegeben,
+# überschreibt die Socket-Liste mit dem Standardpfad. Den gibt es auf
+# RKE2 nicht: Falco verliert die Container- und Pod-Metadaten.
+collectors:
+  containerEngine:
+    engines:
+      cri:
+        enabled: true
+        sockets: ["/run/containerd/containerd.sock"]

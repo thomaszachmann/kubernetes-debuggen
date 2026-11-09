@@ -1,0 +1,6 @@
+# Port, auf dem httpd lauscht, und Port, den die Readiness-Probe prüft.
+# Weichen beide voneinander ab, wird der Pod nie ready und
+# "helm upgrade --wait" wartet bis zum Timeout.
+port: 8080
+readinessPort: 8080
+replicas: 1

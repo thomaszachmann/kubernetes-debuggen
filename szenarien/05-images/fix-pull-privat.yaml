@@ -1,0 +1,23 @@
+# Muster für ein privates Repository. Das Secret "regcred" legst du vorher an:
+# kubectl --context rke2 -n dbg-05 create secret docker-registry regcred \
+#   --docker-server=docker.io --docker-username=<name> --docker-password=<token>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privat
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: privat
+  template:
+    metadata:
+      labels:
+        app: privat
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: web
+          image: docker.io/dbglabor/privat-app:1.0

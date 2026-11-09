@@ -1,0 +1,9 @@
+# Kapitel 13, Szenario NotReady (Talos): absichtlicher Tippfehler in den
+# Kubelet-Argumenten. Richtig wäre "max-pods". Das Kubelet startet mit
+# einem unbekannten Flag nicht, der Knoten wird NotReady.
+# Anwenden: talosctl -n 172.16.0.171 patch mc --patch @labor/talos/patch-kubelet-tippfehler.yaml
+# Zurücknehmen: talosctl -n 172.16.0.171 edit mc  (Zeile max-pod löschen)
+apiVersion: v1alpha1
+kind: KubeletConfig
+extraArgs:
+  max-pod: "150"

@@ -1,0 +1,29 @@
+# Kapitel 11, Szenario 3: Image läuft als root. Im Manifest steht
+# nichts von runAsNonRoot, die MutatingPolicy setzt es trotzdem.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shop
+  template:
+    metadata:
+      labels:
+        app: shop
+        team: shop
+    spec:
+      containers:
+        - name: shop
+          image: nginx:1.29-alpine
+          resources:
+            limits:
+              memory: 128Mi

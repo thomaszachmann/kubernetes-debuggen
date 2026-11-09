@@ -1,0 +1,23 @@
+# Kapitel 11, Szenario 1 (Fix): Label team im Pod-Template.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+        team: shop
+    spec:
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          resources:
+            limits:
+              memory: 128Mi

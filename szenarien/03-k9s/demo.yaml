@@ -1,0 +1,93 @@
+# Kapitel 3: Übungsobjekte für k9s. Aufräumen: kubectl delete ns dbg-03
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-03
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-03
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /tmp/www
+              echo "hallo aus $HOSTNAME" > /tmp/www/index.html
+              exec httpd -f -v -p 8080 -h /tmp/www
+          ports:
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: dbg-03
+spec:
+  selector:
+    app: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Stürzt nach 15 Sekunden ab: Übung für Previous-Logs (p) und Faults (Ctrl-z)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wackel
+  namespace: dbg-03
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wackel
+  template:
+    metadata:
+      labels:
+        app: wackel
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: wackel
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "start"
+              sleep 15
+              echo "FEHLER: Cache voll, gebe auf" >&2
+              exit 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

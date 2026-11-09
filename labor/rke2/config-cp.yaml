@@ -1,0 +1,11 @@
+# /etc/rancher/rke2/config.yaml auf rke2-cp (172.16.0.160)
+# TOKEN-HIER-EINSETZEN ersetzt du beim Kopieren (Kapitel 2).
+node-name: rke2-cp
+node-ip: 172.16.0.160
+token: TOKEN-HIER-EINSETZEN
+tls-san:
+  - 172.16.0.160
+  - rke2-cp
+write-kubeconfig-mode: "0600"
+cni: canal
+ingress-controller: traefik

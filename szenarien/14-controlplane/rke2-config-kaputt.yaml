@@ -1,0 +1,9 @@
+# Kapitel 14, Szenario API-Server startet nicht (RKE2).
+# Drop-in-Datei, auf rke2-cp abzulegen als
+#   /etc/rancher/rke2/config.yaml.d/90-kaputt.yaml
+# RKE2 liest config.yaml.d/*.yaml nach config.yaml in alphabetischer Reihenfolge.
+# Das Feature-Gate gibt es nicht, so wie ein Gate, das nach einem Upgrade
+# entfernt wurde. kube-apiserver bricht beim Start ab.
+# Zurücknehmen: Datei löschen, rke2-server neu starten.
+kube-apiserver-arg:
+  - "feature-gates=DebugBuchGate=true"

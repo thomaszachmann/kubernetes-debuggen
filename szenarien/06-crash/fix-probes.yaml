@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langsam
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: langsam
+  template:
+    metadata:
+      labels:
+        app: langsam
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: app
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "Lade Daten (dauert 40 Sekunden) ..."
+              sleep 40
+              mkdir -p /www && echo ok > /www/healthz
+              exec httpd -f -p 8080 -h /www
+          ports:
+            - containerPort: 8080
+          startupProbe:
+            httpGet: {path: /healthz, port: 8080}
+            periodSeconds: 5
+            failureThreshold: 24
+          livenessProbe:
+            httpGet: {path: /healthz, port: 8080}
+            periodSeconds: 5
+            failureThreshold: 3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nieready
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nieready
+  template:
+    metadata:
+      labels:
+        app: nieready
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "mkdir -p /www && echo ok > /www/healthz && exec httpd -f -p 8080 -h /www"]
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: {path: /healthz, port: 8080}
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nieready
+  namespace: dbg-06
+spec:
+  selector:
+    app: nieready
+  ports:
+    - port: 80
+      targetPort: 8080

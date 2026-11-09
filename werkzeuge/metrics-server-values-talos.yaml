@@ -1,0 +1,16 @@
+# metrics-server für Talos, Chart metrics-server/metrics-server 3.14.0 (App 0.9.0).
+# Nur auf Talos nötig, RKE2 bringt rke2-metrics-server mit.
+#
+# Voraussetzungen (Kapitel 15):
+#   1. labor/talos/patch-kubelet-serving-certs.yaml auf allen Knoten
+#   2. kubelet-serving-cert-approver v0.12.1, genehmigt die Serving-CSRs
+#
+# Bewusst KEIN --kubelet-insecure-tls: metrics-server prüft die Kubelet-
+# Zertifikate gegen die Cluster-CA. Die Standard-Argumente des Charts
+# (InternalIP zuerst, Port aus dem Node-Status) passen zum Labor.
+replicas: 1
+args: []
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi

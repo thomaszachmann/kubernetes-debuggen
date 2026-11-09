@@ -1,0 +1,24 @@
+# Kapitel 10, Szenario 2 (Fix): ClusterRole + ClusterRoleBinding.
+# Beide sind cluster-weit und verschwinden NICHT mit dem Namespace:
+#   kubectl --context rke2 delete -f szenarien/10-rbac-psa/fix-clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dbg-10-node-reader
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dbg-10-node-reader
+subjects:
+  - kind: ServiceAccount
+    name: node-reader
+    namespace: dbg-10
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dbg-10-node-reader

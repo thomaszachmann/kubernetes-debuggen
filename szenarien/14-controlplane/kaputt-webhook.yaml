@@ -1,0 +1,47 @@
+# Kapitel 14, Szenario hängender Admission-Webhook.
+# Der Webhook prüft ConfigMaps im Namespace dbg-14. Sein Service hat keine
+# Pods (der Selektor passt auf nichts), failurePolicy ist Fail.
+# Der namespaceSelector begrenzt den Schaden bewusst auf dbg-14.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-14
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pruefer
+  namespace: dbg-14
+spec:
+  selector:
+    app: pruefer-gibt-es-nicht
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8443
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: dbg14-pruefung
+webhooks:
+  - name: pruefung.dbg14.example.com
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    failurePolicy: Fail
+    timeoutSeconds: 5
+    clientConfig:
+      service:
+        name: pruefer
+        namespace: dbg-14
+        path: /validate
+        port: 443
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: dbg-14
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["configmaps"]
+        scope: Namespaced

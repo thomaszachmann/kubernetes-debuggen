@@ -1,0 +1,24 @@
+# Kapitel 11: Pods in dbg-11 brauchen das Label "team".
+# Matcht nur Pods und hat keinen objectSelector: Kyverno erzeugt per
+# Autogen dieselbe Regel für Deployments, StatefulSets, Jobs usw.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: require-team-label
+spec:
+  validationActions: [Deny]
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [dbg-11]
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  validations:
+    - message: Pods brauchen das Label team.
+      expression: >-
+        object.metadata.?labels.team.orValue('') != ''

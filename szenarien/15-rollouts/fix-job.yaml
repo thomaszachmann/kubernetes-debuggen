@@ -1,0 +1,50 @@
+# Kapitel 15, Fix für Szenario Job: Das Skript legt die Eingabe selbst an
+# (im echten Leben: Volume oder Download korrigieren).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-15
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: import
+  namespace: dbg-15
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: import
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: import
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /tmp/daten
+              echo "id;name" > /tmp/daten/import.csv
+              if [ -f /tmp/daten/import.csv ]; then
+                echo "Import fertig"
+              else
+                echo "FEHLER: /tmp/daten/import.csv fehlt" >&2
+                exit 1
+              fi
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

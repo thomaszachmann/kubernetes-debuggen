@@ -1,0 +1,18 @@
+# Kapitel 7, Szenario 2: Service zeigt auf den falschen Port.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-07
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: dbg-07
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080      # FEHLER: whoami lauscht auf Port 80

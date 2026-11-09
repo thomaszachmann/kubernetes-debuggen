@@ -1,0 +1,27 @@
+# Kapitel 11, Szenario 5: Altanwendung ohne Memory-Limit, für die eine
+# PolicyException gilt (policies/exceptions/legacy-batch.yaml).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: legacy-batch
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: legacy-batch
+  template:
+    metadata:
+      labels:
+        app: legacy-batch
+        team: batch
+    spec:
+      containers:
+        - name: legacy-batch
+          image: busybox:1.37
+          command: ["sleep", "infinity"]

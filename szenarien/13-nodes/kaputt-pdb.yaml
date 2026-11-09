@@ -1,0 +1,64 @@
+# Kapitel 13, Szenario Drain: Das PDB verlangt so viele verfügbare Pods,
+# wie es Replikas gibt. Damit ist keine einzige Eviction erlaubt.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-13
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: dbg-13
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: busybox:1.37
+          command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api
+  namespace: dbg-13
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api

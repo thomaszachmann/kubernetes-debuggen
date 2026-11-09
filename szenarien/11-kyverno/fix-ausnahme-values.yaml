@@ -1,0 +1,11 @@
+# Kapitel 11, Szenario 5 (Fix): PolicyExceptions einschalten.
+# Zusätzlich zu werkzeuge/kyverno-values.yaml angeben:
+#   helm upgrade kyverno kyverno/kyverno -n kyverno --version 3.9.2 \
+#     -f werkzeuge/kyverno-values.yaml -f szenarien/11-kyverno/fix-ausnahme-values.yaml
+features:
+  policyExceptions:
+    enabled: true
+    # Nur PolicyExceptions aus diesem Namespace werden beachtet.
+    # Im Labor dbg-11, in Produktion ein eigener Namespace, in den
+    # nur das Plattform-Team schreiben darf.
+    namespace: dbg-11

@@ -1,0 +1,30 @@
+# Kapitel 10, Szenario 4 (Fix): Pod erfüllt restricted.
+# nginx-unprivileged läuft als UID 101 und lauscht auf 8080.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-10
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          ports:
+            - containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

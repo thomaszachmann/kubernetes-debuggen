@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-04
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: dbg-grenzen
+  namespace: dbg-04
+spec:
+  limits:
+    - type: Container
+      max:
+        cpu: 500m
+        memory: 256Mi
+      default:
+        cpu: 200m
+        memory: 128Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 64Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rechner
+  namespace: dbg-04
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rechner
+  template:
+    metadata:
+      labels:
+        app: rechner
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sleep", "infinity"]
+          resources:
+            limits:
+              cpu: "1"
+              memory: 128Mi

@@ -1,0 +1,58 @@
+# Kapitel 7, Szenario 4: Default-Deny, aber DNS vergessen.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-07
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: dbg-07
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# client darf backend auf Port 80 erreichen ...
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: client-zu-backend
+  namespace: dbg-07
+spec:
+  podSelector:
+    matchLabels:
+      app: client
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: backend
+      ports:
+        - protocol: TCP
+          port: 80
+---
+# ... und backend nimmt Verbindungen von client an.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: backend-von-client
+  namespace: dbg-07
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: client
+      ports:
+        - protocol: TCP
+          port: 80

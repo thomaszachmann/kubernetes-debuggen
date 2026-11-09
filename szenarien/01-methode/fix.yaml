@@ -1,0 +1,46 @@
+# Kapitel 1: Fix. DB_HOST ist gesetzt.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-01
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: dbg-01
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: app
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              if [ -z "$DB_HOST" ]; then
+                echo "FEHLER: DB_HOST ist nicht gesetzt" >&2
+                exit 1
+              fi
+              echo "verbinde mit $DB_HOST"
+              sleep 3600
+          env:
+            - name: DB_HOST
+              value: db.dbg-01.svc.cluster.local
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

@@ -1,0 +1,33 @@
+# Kapitel 9, Szenario 5: emptyDir läuft über, der Kubelet räumt den Pod.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-09
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: export
+  namespace: dbg-09
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: export
+  template:
+    metadata:
+      labels:
+        app: export
+    spec:
+      containers:
+        - name: export
+          image: busybox:1.37
+          # schreibt 80 MiB Zwischendaten in den Cache
+          command: ["sh", "-c", "dd if=/dev/zero of=/cache/export.tmp bs=1M count=80 && sleep infinity"]
+          volumeMounts:
+            - name: cache
+              mountPath: /cache
+      volumes:
+        - name: cache
+          emptyDir:
+            sizeLimit: 50Mi        # FEHLER: kleiner als die Zwischendaten

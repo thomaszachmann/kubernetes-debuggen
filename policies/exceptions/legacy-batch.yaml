@@ -1,0 +1,16 @@
+# Kapitel 11: Ausnahme für die Altanwendung legacy-batch, die noch
+# ohne Memory-Limit läuft. Wirkt nur, wenn Kyverno mit
+# features.policyExceptions.enabled=true und passendem Namespace läuft.
+apiVersion: policies.kyverno.io/v1
+kind: PolicyException
+metadata:
+  name: legacy-batch
+  namespace: dbg-11
+spec:
+  policyRefs:
+    - name: require-memory-limit
+      kind: ValidatingPolicy
+  matchConditions:
+    - name: nur-legacy-batch
+      expression: >-
+        object.metadata.?labels.app.orValue('') == 'legacy-batch'

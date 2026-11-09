@@ -1,0 +1,21 @@
+# Kyverno 1.19.2, Chart kyverno/kyverno 3.9.2 (Kapitel 11)
+#   helm upgrade --install kyverno kyverno/kyverno -n kyverno --create-namespace \
+#     --version 3.9.2 -f werkzeuge/kyverno-values.yaml --wait --timeout 5m
+#
+# Labor: je Controller eine Instanz. Spart RAM, heißt aber: Fällt der
+# Admission-Controller aus, ist der Webhook nicht erreichbar (Szenario 11.4).
+admissionController:
+  replicas: 1
+backgroundController:
+  replicas: 1
+cleanupController:
+  replicas: 1
+reportsController:
+  replicas: 1
+
+features:
+  # Bewusst aus (Standard des Charts). Szenario 11.5 schaltet sie mit
+  # szenarien/11-kyverno/fix-ausnahme-values.yaml ein.
+  policyExceptions:
+    enabled: false
+    namespace: ""

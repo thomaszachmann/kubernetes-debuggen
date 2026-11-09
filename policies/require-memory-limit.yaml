@@ -1,0 +1,30 @@
+# Kapitel 11: Jeder Container in dbg-11 braucht ein Memory-Limit.
+# Der objectSelector (Ausstieg per Label) schaltet Autogen ab: Die Regel
+# prüft nur Pods, nicht Deployments. Das Deployment wird angenommen,
+# erst das ReplicaSet scheitert beim Anlegen der Pods.
+apiVersion: policies.kyverno.io/v1
+kind: ValidatingPolicy
+metadata:
+  name: require-memory-limit
+spec:
+  validationActions: [Deny]
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [dbg-11]
+    objectSelector:
+      matchExpressions:
+        - key: policy.nyrvex.com/skip
+          operator: DoesNotExist
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE, UPDATE]
+        resources: [pods]
+  validations:
+    - message: Jeder Container braucht ein Memory-Limit.
+      expression: >-
+        object.spec.containers.all(c,
+          c.?resources.?limits.?memory.orValue('') != '')

@@ -1,0 +1,7 @@
+# Verzeichnis für den local-path-provisioner, auf allen Knoten.
+# Talos legt /var/mnt/local-path-provisioner auf der EPHEMERAL-Partition an
+# und reicht es in den kubelet-Container durch.
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: local-path-provisioner
+volumeType: directory

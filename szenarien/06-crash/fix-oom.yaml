@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speicher
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speicher
+  template:
+    metadata:
+      labels:
+        app: speicher
+    spec:
+      containers:
+        - name: app
+          image: polinux/stress:1.0.4
+          command: ["/usr/local/bin/stress"]
+          args: ["--vm", "1", "--vm-bytes", "200M", "--vm-hang", "0"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 256Mi

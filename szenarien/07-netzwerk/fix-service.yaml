@@ -1,0 +1,13 @@
+# Kapitel 7: richtiger Service für Szenario 1 und 2.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: dbg-07
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http      # benannter Port aus dem Pod-Template

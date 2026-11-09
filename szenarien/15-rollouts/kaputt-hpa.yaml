@@ -1,0 +1,58 @@
+# Kapitel 15, Szenario HPA: Ziel ist 50 % CPU-Auslastung, gemessen am
+# Request. Der Container hat aber gar keinen CPU-Request.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-15
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rechner
+  namespace: dbg-15
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rechner
+  template:
+    metadata:
+      labels:
+        app: rechner
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: rechner
+          image: busybox:1.37
+          command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]
+          resources:
+            limits:
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rechner
+  namespace: dbg-15
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rechner
+  minReplicas: 1
+  maxReplicas: 4
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 50

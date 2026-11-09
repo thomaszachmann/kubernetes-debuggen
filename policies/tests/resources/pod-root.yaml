@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: root-web
+  namespace: dbg-11
+  labels:
+    app: root-web
+    team: plattform
+spec:
+  containers:
+    - name: web
+      image: nginx:1.29-alpine

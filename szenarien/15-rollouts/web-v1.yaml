@@ -1,0 +1,51 @@
+# Kapitel 15: Ausgangsversion v1 des Deployments web. Funktioniert.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-15
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-15
+  annotations:
+    kubernetes.io/change-cause: "v1: httpd auf 8080"
+spec:
+  replicas: 3
+  progressDeadlineSeconds: 60
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+        version: "v1"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: busybox:1.37
+          command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

@@ -1,0 +1,30 @@
+# Kapitel 11: "Sichere Voreinstellung" der Plattform: setzt
+# runAsNonRoot=true in jedem Pod in dbg-11. Gut gemeint, aber Images,
+# die als root laufen, starten danach nicht mehr.
+apiVersion: policies.kyverno.io/v1
+kind: MutatingPolicy
+metadata:
+  name: add-run-as-non-root
+spec:
+  matchConstraints:
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [dbg-11]
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: [v1]
+        operations: [CREATE]
+        resources: [pods]
+  mutations:
+    - patchType: ApplyConfiguration
+      applyConfiguration:
+        expression: >-
+          Object{
+            spec: Object.spec{
+              securityContext: Object.spec.securityContext{
+                runAsNonRoot: true
+              }
+            }
+          }

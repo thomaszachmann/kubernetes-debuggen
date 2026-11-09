@@ -1,0 +1,9 @@
+# Kapitel 14, Szenario API-Server startet nicht (Talos).
+# Unbekanntes Feature-Gate, so wie ein Gate, das nach einem Upgrade
+# entfernt wurde. Talos rendert den Static Pod neu, kube-apiserver bricht ab.
+# Anwenden: talosctl -n 172.16.0.170 patch mc --patch @labor/talos/patch-apiserver-featuregate.yaml
+# Zurücknehmen: talosctl -n 172.16.0.170 edit mc  (Zeile feature-gates löschen)
+apiVersion: v1alpha1
+kind: KubeAPIServerConfig
+extraArgs:
+  feature-gates: DebugBuchGate=true

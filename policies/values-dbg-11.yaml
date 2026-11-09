@@ -1,0 +1,11 @@
+# Für "kyverno apply" ohne Cluster: Offline kennt die CLI keine
+# Namespace-Labels. Diese Datei sagt ihr, welche Labels dbg-11 hat.
+#   kyverno apply policies/require-team-label.yaml \
+#     --resource szenarien/11-kyverno/kaputt-label.yaml \
+#     --values-file policies/values-dbg-11.yaml
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Values
+namespaceSelector:
+  - name: dbg-11
+    labels:
+      kubernetes.io/metadata.name: dbg-11

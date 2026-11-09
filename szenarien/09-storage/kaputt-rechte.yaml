@@ -1,0 +1,55 @@
+# Kapitel 9, Szenario 4: Permission denied auf dem Volume.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-09
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: notizen
+  namespace: dbg-09
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notizen
+  namespace: dbg-09
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notizen
+  template:
+    metadata:
+      labels:
+        app: notizen
+    spec:
+      initContainers:
+        - name: vorbereiten       # läuft als root und legt das Verzeichnis an
+          image: busybox:1.37
+          command: ["sh", "-c", "mkdir -p /data/notizen"]
+          volumeMounts:
+            - name: daten
+              mountPath: /data
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "date >> /data/notizen/log.txt && sleep infinity"]
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - name: daten
+              mountPath: /data
+      volumes:
+        - name: daten
+          persistentVolumeClaim:
+            claimName: notizen

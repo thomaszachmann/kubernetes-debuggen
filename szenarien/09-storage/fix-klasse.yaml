@@ -1,0 +1,31 @@
+# Kapitel 9, Szenario 1: PVC und Pod neu anlegen, diesmal mit local-path.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: daten
+  namespace: dbg-09
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  namespace: dbg-09
+spec:
+  containers:
+    - name: app
+      image: busybox:1.37
+      command: ["sh", "-c", "date >> /data/start.log && sleep infinity"]
+      volumeMounts:
+        - name: daten
+          mountPath: /data
+  volumes:
+    - name: daten
+      persistentVolumeClaim:
+        claimName: daten

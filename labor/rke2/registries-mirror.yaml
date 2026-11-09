@@ -1,0 +1,12 @@
+# Kopie nach /etc/rancher/rke2/registries.yaml auf jedem RKE2-Knoten,
+# danach rke2-server bzw. rke2-agent neu starten.
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://mirror.gcr.io"
+# Zugangsdaten für eine eigene Registry (nicht ins Repo einchecken):
+# configs:
+#   "registry.example.com:5000":
+#     auth:
+#       username: xxxxxx
+#       password: xxxxxx

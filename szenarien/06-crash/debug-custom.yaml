@@ -1,0 +1,8 @@
+# Teil-Spezifikation für den Debug-Container (kubectl debug --custom),
+# kein vollständiges Kubernetes-Objekt.
+securityContext:
+  runAsUser: 65532
+  runAsGroup: 65532
+volumeMounts:
+  - name: config
+    mountPath: /etc/coredns

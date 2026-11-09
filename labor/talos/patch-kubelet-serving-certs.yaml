@@ -1,0 +1,10 @@
+# Kapitel 15: Kubelet holt sein Serving-Zertifikat über die Kubernetes-CA
+# (CSR mit signerName kubernetes.io/kubelet-serving), statt sich selbst eins
+# zu signieren. Voraussetzung dafür, dass metrics-server dem Kubelet ohne
+# --kubelet-insecure-tls vertraut. Quelle: Talos-Doku "Deploy the Metrics Server".
+# Anwenden auf alle Knoten:
+#   talosctl -n 172.16.0.170,172.16.0.171 patch mc --patch @labor/talos/patch-kubelet-serving-certs.yaml
+apiVersion: v1alpha1
+kind: KubeletConfig
+extraArgs:
+  rotate-server-certificates: "true"

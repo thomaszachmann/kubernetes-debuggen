@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-05
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tippfehler
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tippfehler
+  template:
+    metadata:
+      labels:
+        app: tippfehler
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.29-alpnie
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unerreichbar
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: unerreichbar
+  template:
+    metadata:
+      labels:
+        app: unerreichbar
+    spec:
+      containers:
+        - name: web
+          image: registry.labor.invalid:5000/web:1.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: privat
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: privat
+  template:
+    metadata:
+      labels:
+        app: privat
+    spec:
+      containers:
+        - name: web
+          image: docker.io/dbglabor/privat-app:1.0

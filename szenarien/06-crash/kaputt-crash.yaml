@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-06
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tippfehler
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tippfehler
+  template:
+    metadata:
+      labels:
+        app: tippfehler
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "serv -p 8080 -h /www"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: appfehler
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: appfehler
+  template:
+    metadata:
+      labels:
+        app: appfehler
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              echo "Konfiguration wird geladen"
+              if [ -z "$DATABASE_URL" ]; then
+                echo "FEHLER: DATABASE_URL ist nicht gesetzt" >&2
+                exit 1
+              fi
+              exec sleep infinity

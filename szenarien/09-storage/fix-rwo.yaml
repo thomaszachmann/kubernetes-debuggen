@@ -1,0 +1,54 @@
+# Kapitel 9, Szenario 3: StatefulSet, jede Replika bekommt ein eigenes Volume.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+  namespace: dbg-09
+spec:
+  clusterIP: None
+  selector:
+    app: cache
+  ports:
+    - name: dummy
+      port: 80
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cache
+  namespace: dbg-09
+spec:
+  serviceName: cache
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cache
+  template:
+    metadata:
+      labels:
+        app: cache
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: cache
+      containers:
+        - name: cache
+          image: busybox:1.37
+          command: ["sh", "-c", "hostname >> /data/wer-war-hier && sleep infinity"]
+          volumeMounts:
+            - name: daten
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: daten
+      spec:
+        storageClassName: local-path
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

@@ -1,0 +1,11 @@
+# Control Plane talos-cp (172.16.0.170)
+machine:
+  install:
+    disk: /dev/sda
+cluster:
+  allowSchedulingOnControlPlanes: true
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: talos-cp
+auto: off

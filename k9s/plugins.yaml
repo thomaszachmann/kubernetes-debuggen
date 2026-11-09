@@ -1,0 +1,67 @@
+# k9s-Plugins für "Kubernetes debuggen" (k9s v0.51.0)
+# Ablage auf dem Mac: ~/Library/Application Support/k9s/plugins.yaml
+# Pfad prüfen mit: k9s info
+plugins:
+  # Pod-Ansicht, Shift-D: netshoot als Ephemeral Container im gewählten Pod.
+  # Teilt das Netzwerk des Pods: ip, ss, dig, curl, tcpdump.
+  netshoot:
+    shortCut: Shift-D
+    description: netshoot debug
+    scopes:
+      - pods
+    dangerous: true
+    confirm: true
+    background: false
+    command: kubectl
+    args:
+      - debug
+      - -it
+      - --context
+      - $CONTEXT
+      - -n
+      - $NAMESPACE
+      - $NAME
+      - --image=nicolaka/netshoot:v0.15
+      - --profile=baseline
+
+  # Container-Ansicht, Shift-D: netshoot mit --target auf den gewählten
+  # Container. Sieht dessen Prozesse (z. B. bei distroless-Images).
+  netshoot-target:
+    shortCut: Shift-D
+    description: netshoot --target
+    scopes:
+      - containers
+    dangerous: true
+    confirm: true
+    background: false
+    command: kubectl
+    args:
+      - debug
+      - -it
+      - --context
+      - $CONTEXT
+      - -n
+      - $NAMESPACE
+      - $POD
+      - --target=$NAME
+      - --image=nicolaka/netshoot:v0.15
+      - --profile=baseline
+
+  # Shift-E: Events genau dieses Objekts, chronologisch, in less.
+  events:
+    shortCut: Shift-E
+    description: kubectl events
+    scopes:
+      - pods
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+      - jobs
+      - services
+      - persistentvolumeclaims
+    background: false
+    command: sh
+    args:
+      - -c
+      - kubectl events --context "$CONTEXT" -n "$NAMESPACE" --for "$RESOURCE_NAME/$NAME" | less -S

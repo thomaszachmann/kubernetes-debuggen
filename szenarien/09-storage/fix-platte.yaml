@@ -1,0 +1,32 @@
+# Kapitel 9, Szenario 5: Grenze passend zur Last, plus Request und Limit.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: export
+  namespace: dbg-09
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: export
+  template:
+    metadata:
+      labels:
+        app: export
+    spec:
+      containers:
+        - name: export
+          image: busybox:1.37
+          command: ["sh", "-c", "dd if=/dev/zero of=/cache/export.tmp bs=1M count=80 && sleep infinity"]
+          resources:
+            requests:
+              ephemeral-storage: 200Mi
+            limits:
+              ephemeral-storage: 300Mi
+          volumeMounts:
+            - name: cache
+              mountPath: /cache
+      volumes:
+        - name: cache
+          emptyDir:
+            sizeLimit: 200Mi

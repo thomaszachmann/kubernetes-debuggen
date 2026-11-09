@@ -1,0 +1,38 @@
+# Falco 0.45.2, Chart falcosecurity/falco 9.2.2, Cluster: RKE2 (Kapitel 12)
+#   helm upgrade --install falco falcosecurity/falco -n falco \
+#     --version 9.2.2 -f werkzeuge/falco-values-rke2.yaml
+#
+# RKE2 bringt sein eigenes containerd mit, der Socket liegt NICHT am
+# Standardpfad, sondern unter /run/k3s/containerd/.
+# Zeilen sofort ausgeben, nicht puffern
+tty: true
+
+driver:
+  # Moderner eBPF-Treiber (CO-RE), kein Kernel-Modul nötig.
+  kind: modern_ebpf
+
+falco:
+  json_output: true
+  json_include_output_property: true
+  append_output:
+    # Standard des Charts beibehalten: container_id, container_name
+    - suggested_output: true
+    # Namespace und Pod an jede Meldung hängen
+    - match:
+        source: syscall
+      extra_output: "k8s_ns=%k8s.ns.name k8s_pod=%k8s.pod.name"
+
+collectors:
+  containerEngine:
+    # Nur die CRI-Schnittstelle der Kubelet-containerd-Instanz abfragen.
+    # Das Chart mountet genau die Verzeichnisse der hier genannten Sockets.
+    engines:
+      docker:
+        enabled: false
+      podman:
+        enabled: false
+      containerd:
+        enabled: false
+      cri:
+        enabled: true
+        sockets: ["/run/k3s/containerd/containerd.sock"]

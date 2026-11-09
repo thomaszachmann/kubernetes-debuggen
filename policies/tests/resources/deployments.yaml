@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-ohne-team
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-mit-team
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+        team: plattform
+    spec:
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.29-alpine

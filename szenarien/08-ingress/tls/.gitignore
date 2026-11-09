@@ -1,0 +1,3 @@
+# Von zertifikat.sh erzeugte Schlüssel und Zertifikate nie einchecken.
+*
+!.gitignore

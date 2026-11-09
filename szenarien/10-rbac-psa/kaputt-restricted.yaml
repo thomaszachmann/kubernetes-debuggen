@@ -1,0 +1,32 @@
+# Kapitel 10, Szenario 4: Namespace mit enforce: restricted.
+# Das Deployment wird angenommen, das ReplicaSet kann keine Pods anlegen.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-10
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-10
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.29-alpine
+          ports:
+            - containerPort: 80

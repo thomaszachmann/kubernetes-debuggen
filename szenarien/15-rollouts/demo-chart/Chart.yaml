@@ -1,0 +1,6 @@
+apiVersion: v2
+name: demo
+description: Kapitel 15 - Mini-Chart für das Szenario "Helm-Release hängt"
+type: application
+version: 0.1.0
+appVersion: "1.37"

@@ -1,0 +1,49 @@
+# Kapitel 15, Szenario Job: Das Skript erwartet eine Datei, die es nicht
+# gibt, und endet mit Exit-Code 1. Nach backoffLimit Wiederholungen gibt
+# der Job-Controller auf.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-15
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: import
+  namespace: dbg-15
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 120
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: import
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: import
+          image: busybox:1.37
+          command:
+            - sh
+            - -c
+            - |
+              if [ -f /daten/import.csv ]; then
+                echo "Import fertig"
+              else
+                echo "FEHLER: /daten/import.csv fehlt" >&2
+                exit 1
+              fi
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

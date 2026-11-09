@@ -1,0 +1,9 @@
+# Worker talos-w1 (172.16.0.171)
+machine:
+  install:
+    disk: /dev/sda
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: talos-w1
+auto: off

@@ -1,0 +1,54 @@
+# Kapitel 7, Szenario 1: Der Service findet keine Pods.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-07
+---
+# Werkzeug-Pod für alle Tests in diesem Kapitel (curl, dig, nslookup, ss).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client
+  namespace: dbg-07
+  labels:
+    app: client
+spec:
+  containers:
+    - name: netshoot
+      image: nicolaka/netshoot:v0.15
+      command: ["sleep", "infinity"]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: dbg-07
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: whoami
+          image: traefik/whoami:v1.11.0
+          ports:
+            - name: http
+              containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: dbg-07
+spec:
+  selector:
+    app: backend-api        # FEHLER: die Pods heißen app=backend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

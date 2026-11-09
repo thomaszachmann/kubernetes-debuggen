@@ -1,0 +1,41 @@
+# Falco 0.45.2, Chart falcosecurity/falco 9.2.2, Cluster: Talos (Kapitel 12)
+#   helm upgrade --install falco falcosecurity/falco -n falco \
+#     --version 9.2.2 -f werkzeuge/falco-values-talos.yaml
+#
+# Vorher: Namespace falco mit PSA privileged anlegen,
+#   kubectl --context talos apply -f szenarien/12-falco/namespace-falco.yaml
+# Talos betreibt zwei containerd-Instanzen. Die Pods der Kubelet laufen in
+# der CRI-Instanz unter /run/containerd/containerd.sock, die System-
+# Instanz (/system/run/containerd) ist für Falco uninteressant.
+# Zeilen sofort ausgeben, nicht puffern
+tty: true
+
+driver:
+  # Moderner eBPF-Treiber (CO-RE), kein Kernel-Modul nötig.
+  kind: modern_ebpf
+
+falco:
+  json_output: true
+  json_include_output_property: true
+  append_output:
+    # Standard des Charts beibehalten: container_id, container_name
+    - suggested_output: true
+    # Namespace und Pod an jede Meldung hängen
+    - match:
+        source: syscall
+      extra_output: "k8s_ns=%k8s.ns.name k8s_pod=%k8s.pod.name"
+
+collectors:
+  containerEngine:
+    # Nur die CRI-Schnittstelle der Kubelet-containerd-Instanz abfragen.
+    # Das Chart mountet genau die Verzeichnisse der hier genannten Sockets.
+    engines:
+      docker:
+        enabled: false
+      podman:
+        enabled: false
+      containerd:
+        enabled: false
+      cri:
+        enabled: true
+        sockets: ["/run/containerd/containerd.sock"]

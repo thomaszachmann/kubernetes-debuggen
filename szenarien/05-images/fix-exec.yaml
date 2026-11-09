@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: start-skript
+  namespace: dbg-05
+data:
+  start.sh: |
+    #!/bin/sh
+    echo "Starte Dienst"
+    exec sleep infinity

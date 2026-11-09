@@ -1,0 +1,26 @@
+# Kapitel 11, Szenario 2: Container ohne Memory-Limit.
+# Das Deployment wird angenommen, die Pods nicht (kein Autogen).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+        team: shop
+    spec:
+      containers:
+        - name: api
+          image: nginxinc/nginx-unprivileged:1.29-alpine

@@ -1,0 +1,29 @@
+# Kapitel 11, Szenario 4: harmloses Deployment, das während eines
+# Kyverno-Ausfalls trotzdem abgelehnt wird.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notfall
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notfall
+  template:
+    metadata:
+      labels:
+        app: notfall
+        team: shop
+    spec:
+      containers:
+        - name: notfall
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          resources:
+            limits:
+              memory: 128Mi

@@ -1,0 +1,65 @@
+# Kapitel 13, Fix für den Knotenausfall: eigene Toleranzen für
+# not-ready/unreachable. Die zustandslosen Pods ziehen nach 30 s um
+# statt nach den 300 s, die Kubernetes sonst automatisch einträgt.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-13
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-13
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: web
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 30
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: web
+          image: busybox:1.37
+          command: ["httpd", "-f", "-p", "8080", "-h", "/tmp"]
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]

@@ -1,0 +1,29 @@
+# Kapitel 8, Szenario 4: Ingress mit TLS. Das Secret shop-tls legst du
+# mit zertifikat.sh und kubectl an (Schlüssel gehören nicht ins Repo).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-08
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shop
+  namespace: dbg-08
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - shop.dbg08.example
+      secretName: shop-tls
+  rules:
+    - host: shop.dbg08.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shop
+                port:
+                  number: 80

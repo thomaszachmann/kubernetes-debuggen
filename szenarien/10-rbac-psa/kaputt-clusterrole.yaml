@@ -1,0 +1,76 @@
+# Kapitel 10, Szenario 2: Role statt ClusterRole.
+# Nodes sind cluster-weit. Eine Role in dbg-10 kann darauf keine
+# Rechte vergeben, auch wenn der API-Server sie klaglos annimmt.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-10
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-reader
+  namespace: dbg-10
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: node-reader
+  namespace: dbg-10
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: node-reader
+  namespace: dbg-10
+subjects:
+  - kind: ServiceAccount
+    name: node-reader
+    namespace: dbg-10
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: node-reader
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-lister
+  namespace: dbg-10
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-lister
+  template:
+    metadata:
+      labels:
+        app: node-lister
+    spec:
+      serviceAccountName: node-reader
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: kubectl
+          image: registry.k8s.io/kubectl:v1.36.6
+          args: ["get", "nodes", "--watch"]
+          env:
+            - name: HOME
+              value: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

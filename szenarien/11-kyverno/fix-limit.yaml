@@ -1,0 +1,23 @@
+# Kapitel 11, Szenario 2 (Fix): Memory-Limit gesetzt.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+        team: shop
+    spec:
+      containers:
+        - name: api
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          resources:
+            limits:
+              memory: 128Mi

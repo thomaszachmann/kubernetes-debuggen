@@ -1,0 +1,67 @@
+# Offline-Test aller Policies aus Kapitel 11:
+#   kyverno test policies/tests
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: kapitel-11
+policies:
+  - ../require-team-label.yaml
+  - ../require-memory-limit.yaml
+  - ../add-run-as-non-root.yaml
+exceptions:
+  - ../exceptions/legacy-batch.yaml
+resources:
+  - resources/pods.yaml
+  - resources/deployments.yaml
+  - resources/pod-root.yaml
+values:
+  namespaceSelector:
+    - name: dbg-11
+      labels:
+        kubernetes.io/metadata.name: dbg-11
+results:
+  # require-team-label: Pods
+  - isValidatingPolicy: true
+    policy: require-team-label
+    kind: Pod
+    resources: [gut, ohne-limit, legacy-batch]
+    result: pass
+  - isValidatingPolicy: true
+    policy: require-team-label
+    kind: Pod
+    resources: [ohne-team]
+    result: fail
+  # require-team-label: Autogen greift auch für Deployments
+  - isValidatingPolicy: true
+    policy: require-team-label
+    kind: Deployment
+    resources: [web-mit-team]
+    result: pass
+  - isValidatingPolicy: true
+    policy: require-team-label
+    kind: Deployment
+    resources: [web-ohne-team]
+    result: fail
+  # require-memory-limit
+  - isValidatingPolicy: true
+    policy: require-memory-limit
+    kind: Pod
+    resources: [gut, ohne-team]
+    result: pass
+  - isValidatingPolicy: true
+    policy: require-memory-limit
+    kind: Pod
+    resources: [ohne-limit]
+    result: fail
+  - isValidatingPolicy: true
+    policy: require-memory-limit
+    kind: Pod
+    resources: [legacy-batch]
+    result: skip
+  # add-run-as-non-root
+  - isMutatingPolicy: true
+    policy: add-run-as-non-root
+    kind: Pod
+    resources: [root-web]
+    patchedResources: patched/pod-root.yaml
+    result: pass

@@ -1,0 +1,28 @@
+# Kapitel 11, Szenario 1: Pod-Template ohne Label team.
+# require-team-label lehnt schon das Deployment ab (Autogen).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-11
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: dbg-11
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginxinc/nginx-unprivileged:1.29-alpine
+          resources:
+            limits:
+              memory: 128Mi

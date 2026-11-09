@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gross
+  namespace: dbg-04
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gross
+  template:
+    metadata:
+      labels:
+        app: gross
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sleep", "infinity"]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              memory: 256Mi

@@ -1,0 +1,46 @@
+# Kapitel 2: prüft den local-path-provisioner. Aufräumen: kubectl delete ns dbg-02
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-02
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: daten
+  namespace: dbg-02
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: schreiber
+  namespace: dbg-02
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: schreiber
+      image: busybox:1.37
+      command: ["sh", "-c", "date > /daten/hallo.txt && cat /daten/hallo.txt && sleep 3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: daten
+          mountPath: /daten
+  volumes:
+    - name: daten
+      persistentVolumeClaim:
+        claimName: daten

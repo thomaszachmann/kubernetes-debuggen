@@ -1,0 +1,15 @@
+# Zusätzliche Werte für das mitgelieferte rke2-traefik (RKE2 1.36).
+# Anwenden: kubectl --context rke2 apply -f werkzeuge/rke2-traefik-config.yaml
+# Alternativ als Datei nach /var/lib/rancher/rke2/server/manifests/rke2-traefik-config.yaml
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    accessLog:
+      enabled: true
+    ingressRoute:
+      dashboard:
+        enabled: true

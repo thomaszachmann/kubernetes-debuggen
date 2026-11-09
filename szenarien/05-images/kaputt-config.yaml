@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dbg-05
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+  namespace: dbg-05
+type: Opaque
+stringData:
+  db-password: geheim-nur-im-labor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: dbg-05
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: busybox:1.37
+          command: ["sh", "-c", "echo \"Verbinde mit $DB_HOST\"; sleep infinity"]
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD

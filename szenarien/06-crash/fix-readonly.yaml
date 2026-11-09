@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webro
+  namespace: dbg-06
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webro
+  template:
+    metadata:
+      labels:
+        app: webro
+    spec:
+      containers:
+        - name: web
+          image: nginx:1.29
+          ports:
+            - containerPort: 80
+          securityContext:
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: cache
+              mountPath: /var/cache/nginx
+            - name: run
+              mountPath: /run
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: run
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi

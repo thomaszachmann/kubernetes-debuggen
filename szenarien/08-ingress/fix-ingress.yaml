@@ -1,0 +1,19 @@
+# Kapitel 8: richtiger Ingress für Szenario 1 und 2.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shop
+  namespace: dbg-08
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: shop.dbg08.example
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shop
+                port:
+                  number: 80

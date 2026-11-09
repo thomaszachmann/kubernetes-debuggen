@@ -1,0 +1,7 @@
+# Registry-Mirror für docker.io (Talos 1.14, Dokument RegistryMirrorConfig).
+# Anwenden: talosctl -n 172.16.0.170,172.16.0.171 patch mc --patch @labor/talos/patch-registry.yaml
+apiVersion: v1alpha1
+kind: RegistryMirrorConfig
+name: docker.io
+endpoints:
+  - url: https://mirror.gcr.io
