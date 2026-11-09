@@ -49,4 +49,7 @@ Benötigt [Typst](https://typst.app) 0.14 und die Schriften Charter, Avenir Next
 
 ## Lizenz
 
-Das Buch (Ordner `buch/` und `book-en/`) steht unter [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/).
+Alles ist kostenlos.
+
+- **Buch** (Ordner `buch/` und `book-en/`): [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/). Weitergeben ausdrücklich erlaubt, unverändert und mit Namensnennung.
+- **Alles andere** (Manifeste, Policies, Helm-Werte, Skripte, k9s-Plugins): [MIT](LICENSE). Frei verwenden, ändern und weitergeben, auch kommerziell.
